@@ -104,7 +104,38 @@ anova(fit_null, fit_alternative) |>
   broom::tidy()
 ```
 
+## Borough-level differences
 
+```{r}
+fit = 
+  nyc_airbnb |> 
+  lm(price ~ stars*borough + room_type*borough, data = _)
+
+fit |> 
+  broom::tidy()
+```
+
+This might be confusing, can fit 4 different models, one for each borough
+
+```{r}
+airbnb_lm = function(df) {
+  lm(price ~ stars + room_type, data = df)
+}
+
+nyc_airbnb |> 
+  nest(df = -borough) |> 
+  mutate(
+    models = map(df, airbnb_lm),
+    results = map(models, broom::tidy)
+  ) |> 
+  select(borough, results) |> 
+  unnest(results) |> ## this gives the same numbers as the model with interactions
+  select(borough, term, estimate) |> 
+  pivot_wider(
+    names_from = term, 
+    values_from = estimate) |> 
+  knitr::kable(digits = 2) 
+```
 
 
 
