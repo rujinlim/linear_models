@@ -29,7 +29,96 @@ Let's fit a model
 
 ```{r}
 fit = lm(price ~ stars + borough, data = nyc_airbnb)
+fit
+summary(fit)
+summary(fit)$coef
+coef(fit)
+fitted.values(fit)
 ```
+
+Instead of viewing those, can tidy up the output instead
+
+```{r}
+fit |> 
+  broom::glance()
+```
+
+Tidy up the coefficients
+
+```{r}
+fit |> 
+  broom::tidy() |> 
+  mutate(term = str_replace(term, "^borough", "Borough: ")) |> 
+  knitr::kable(digits = 3)
+```
+
+Model 2
+
+```{r}
+fit = lm(price ~ stars + borough + room_type, data = nyc_airbnb)
+
+fit = nyc_airbnb |> 
+  mutate(
+    borough = fct_infreq(borough),
+    room_type = fct_infreq(room_type)
+  ) |> 
+  lm(price ~ stars + borough + room_type, data = _) # changes order order, manhattan in now reference
+
+fit |> 
+  broom::tidy()
+```
+
+
+## Quick look at diagnostics
+
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit)
+
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = resid)) +
+  geom_density() +
+  xlim(-100,500)
+
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = borough, y = resid)) +
+  geom_violin() # skewness most prominent in brooklyn and manhattan
+
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  ggplot(aes(x = stars, y = resid)) +
+  geom_point() # skewness comes in the high-star airbnbs
+```
+
+## Hypothesis test for categorical predictor
+
+Fit a "null" and "alternative" model to check if we actually need room_type as a variable
+
+```{r}
+fit_null = lm(price ~ stars + borough, data = nyc_airbnb) 
+fit_alternative = lm(price ~ stars + borough + room_type, data = nyc_airbnb)
+
+anova(fit_null, fit_alternative) |> 
+  broom::tidy()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
