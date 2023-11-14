@@ -1,0 +1,14 @@
+---
+title: "Cross validation"
+author: "rl3411"
+date: "2023-11-09"
+output: github_document
+---
+
+```{r}
+set.seed(1)
+library(tidyverse)
+```
+
+## Non-linear data and CV
+
