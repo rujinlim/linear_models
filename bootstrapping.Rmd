@@ -1,0 +1,13 @@
+---
+title: "bootstrapping"
+author: "rl3411"
+date: "2023-11-16"
+output: github_document
+---
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+library(modelr)
+set.seed(1)
+```
+
